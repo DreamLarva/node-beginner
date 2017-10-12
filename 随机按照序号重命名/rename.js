@@ -29,9 +29,14 @@ function explainFileName(entireFileName) {
         extension
     }
 }
-const nameArr = fs.readdirSync(path.join(__dirname, "test"))
+let nameArr = fs.readdirSync(path.join(__dirname, "test"))
 
 const absolutePath = path.join(__dirname, "test");
+
+let start = Date.now()
+
+
+
 
 
 nameArr.forEach((v, index) => {
@@ -45,4 +50,25 @@ nameArr.forEach((v, index) => {
 
 
     // fs.renameSync("./dir 1/" + v.name, "./dir 1/" + index +"."+ v._extension)
+})
+
+console.log(Date.now() - start)
+
+
+nameArr = fs.readdirSync(path.join(__dirname, "test"))
+
+start = Date.now()
+nameArr.forEach((v, index,all) => {
+    const filePath = path.join(absolutePath, v);
+    const fileState = fs.statSync(path.join(absolutePath, v))
+    if (fs.statSync(filePath).isDirectory()) {
+        fs.rename(filePath, path.join(absolutePath, "_"+String(index)),error=>{})
+    } else {
+        fs.rename(filePath, path.join(absolutePath, "_"+index + explainFileName(v).extension),error=>{
+            if(index === all.length - 1){
+                console.log(Date.now() - start)
+            }
+
+        })
+    } 
 })
