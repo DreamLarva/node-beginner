@@ -2,33 +2,6 @@ const fs = require("fs")
 const path = require("path")
 
 
-/**
- * @param {string} entireFileName 完整的文件名
- */
-function explainFileName(entireFileName) {
-    let name = "";
-    let extension = ""
-    if (entireFileName.includes(".")) {
-        if (entireFileName.startsWith(".")) {
-            // 只有拓展名
-            extension = entireFileName;
-        } else {
-            // 有文件名也有拓展名
-            const temp = /^(.+)(\..+)$/.exec(entireFileName)
-            name = temp[1]
-            extension = temp[2]
-        }
-
-    } else {
-        // 只有文件名
-        name = entireFileName
-    }
-
-    return {
-        name,
-        extension
-    }
-}
 let nameArr = fs.readdirSync(path.join(__dirname, "test"))
 
 const absolutePath = path.join(__dirname, "test");
@@ -45,7 +18,7 @@ nameArr.forEach((v, index) => {
     if (fs.statSync(filePath).isDirectory()) {
         fs.renameSync(filePath, path.join(absolutePath, String(index)))
     } else {
-        fs.renameSync(filePath, path.join(absolutePath, index + explainFileName(v).extension))
+        fs.renameSync(filePath, path.join(absolutePath, index + path.extname(v)))
     }
 
 
@@ -64,7 +37,7 @@ nameArr.forEach((v, index,all) => {
     if (fs.statSync(filePath).isDirectory()) {
         fs.rename(filePath, path.join(absolutePath, "_"+String(index)),error=>{})
     } else {
-        fs.rename(filePath, path.join(absolutePath, "_"+index + explainFileName(v).extension),error=>{
+        fs.rename(filePath, path.join(absolutePath, "_"+index + path.extname(v)),error=>{
             if(index === all.length - 1){
                 console.log(Date.now() - start)
             }
