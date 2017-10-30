@@ -5,5 +5,10 @@ const _ = require("lodash")
 const notes = require("./notes")
 const yargs = require("yargs")
 
+
+const get = require("lodash/get");
+
+
 const argv = yargs.argv;
 console.log(argv)
+console.log(get)
