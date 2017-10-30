@@ -17,7 +17,7 @@ function run(fun) {
     console.timeEnd("appendFileSync")
 }
 
-// run(appendAFileS)s
+run(appendAFileS)
 module.exports = run
 
 
