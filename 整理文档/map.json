@@ -1,0 +1,48 @@
+[
+    {
+        "dirName":"c++",
+        "reg":"c\\+\\+"
+    },
+    {
+        "dirName":"算法 数据结构 设计模式",
+        "reg":"算法|数据结构|设计模式|pattern|模式|模式"
+    },
+    {
+        "dirName":"node",
+        "reg":"node"
+    },
+    {
+        "dirName":"node express",
+        "reg":"express"
+    },
+
+    {
+        "dirName":"native script",
+        "reg":"reactnative|ionic|react native"
+    },
+    {
+        "dirName":"mongodb",
+        "reg":"mongodb"
+    },
+    {
+        "dirName":"backbone",
+        "reg":"backbone"
+    },
+    {
+        "dirName":"jquery",
+        "reg":"jquery"
+    },
+    {
+        "dirName":"react",
+        "reg":"react\\b"
+    },
+    {
+        "dirName":"angular",
+        "reg":"angular"
+    },
+    {
+        "dirName":"php",
+        "reg":"php"
+    }
+    
+]
