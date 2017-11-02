@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const _map = require("./map.json");
+const promisify = require("util").promisify;
 
 const targetPath = "E:\\test";
 
@@ -17,7 +18,7 @@ async function run(map) {
     console.log(outdatedFiles);
     // 新建文件夹
     await mkdir(targetPath, "outdated");
-    await cut(outdatedFiles, targetPath,"outdated");
+    await cut(outdatedFiles, targetPath, "outdated");
 
     for (let i = 0, len = map.length; i < len; i++) {
         let {dirName, reg} = map[i];
@@ -37,61 +38,58 @@ async function run(map) {
             await mkdir(targetPath, dirName);
 
             // 复制文件
-            await cut(files, targetPath,dirName);
+            await cut(files, targetPath, dirName);
 
         }
     }
 }
 
 // 读取文件
-async function readdir(targetPath) {
+function readdir(targetPath) {
     "use strict";
-    return await new Promise((resolve, reject) => {
-        fs.readdir(targetPath, function (error, files) {
-            if (error) reject(error);
-            resolve(files)
-        })
-    });
+    return promisify(fs.readdir)(targetPath)
+    // return await new Promise((resolve, reject) => {
+    //     fs.readdir(targetPath, function (error, files) {
+    //         if (error) reject(error);
+    //         resolve(files)
+    //     })
+    // });
 }
 
 // 新建文件夹
-async function mkdir(targetPath, directoryName) {
+function mkdir(targetPath, directoryName) {
     "use strict";
-    return new Promise((resolve, reject) => {
-        fs.mkdir(path.resolve(targetPath, directoryName), function (err) {
-            // 文件夹已经存在
-            if (err) {
-                console.log(`${"outdated"}文件夹 已经存在`)
-            } else {
-                // 新建文件夹
-                console.log(`新建${"outdated"}文件夹 成功`);
-            }
-            resolve()
-        })
-    });
+    return promisify(fs.mkdir)(path.resolve(targetPath, directoryName))
+        .then(() => console.log(`新建${directoryName}文件夹 成功`))
+        .catch(() => console.log(`${directoryName}文件夹 已经存在`))
+    // return new Promise((resolve, reject) => {
+    //     fs.mkdir(path.resolve(targetPath, directoryName), function (err) {
+    //         // 文件夹已经存在
+    //         if (err) {
+    //             console.log(`${directoryName}文件夹 已经存在`)
+    //         } else {
+    //             // 新建文件夹
+    //             console.log(`新建${directoryName}文件夹 成功`);
+    //         }
+    //         resolve()
+    //     })
+    // });
 }
 
 // 处理文件 剪切
-async function cut(files, targetPath,dirName) {
+function cut(files, targetPath, dirName) {
     "use strict";
     return Promise.all(files.map(v => {
-        return new Promise((resolve, reject) => {
-            "use strict";
-            fs.copyFile(
-                path.resolve(targetPath, v),
-                path.resolve(targetPath, dirName, v),
-                function (err) {
-                    if (err) reject(err);
-                    console.log(`已经复制${v}`);
-                    fs.unlink(path.resolve(targetPath, v), function (err) {
-                        if (err) reject(err);
-                        console.log(`已经删除${v}`);
-                        resolve()
-                    })
-                }
+        return promisify(fs.copyFile)
+        (path.resolve(targetPath, v), path.resolve(targetPath, dirName, v))
+            .then(() => console.log(`已经复制${v}`))
+            .catch(err => console.log(err))
+            .then(() =>
+                promisify(fs.unlink)
+                (path.resolve(targetPath, v))
+                    .then(() => console.log(`已经删除${v}`))
             )
-        });
-    }));
+    }))
 }
 
 
