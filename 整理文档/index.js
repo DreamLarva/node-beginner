@@ -44,53 +44,7 @@ async function run(map) {
     }
 }
 
-// 读取文件
-function readdir(targetPath) {
-    "use strict";
-    return promisify(fs.readdir)(targetPath)
-    // return await new Promise((resolve, reject) => {
-    //     fs.readdir(targetPath, function (error, files) {
-    //         if (error) reject(error);
-    //         resolve(files)
-    //     })
-    // });
-}
 
-// 新建文件夹
-function mkdir(targetPath, directoryName) {
-    "use strict";
-    return promisify(fs.mkdir)(path.resolve(targetPath, directoryName))
-        .then(() => console.log(`新建${directoryName}文件夹 成功`))
-        .catch(() => console.log(`${directoryName}文件夹 已经存在`))
-    // return new Promise((resolve, reject) => {
-    //     fs.mkdir(path.resolve(targetPath, directoryName), function (err) {
-    //         // 文件夹已经存在
-    //         if (err) {
-    //             console.log(`${directoryName}文件夹 已经存在`)
-    //         } else {
-    //             // 新建文件夹
-    //             console.log(`新建${directoryName}文件夹 成功`);
-    //         }
-    //         resolve()
-    //     })
-    // });
-}
-
-// 处理文件 剪切
-function cut(files, targetPath, dirName) {
-    "use strict";
-    return Promise.all(files.map(v => {
-        return promisify(fs.copyFile)
-        (path.resolve(targetPath, v), path.resolve(targetPath, dirName, v))
-            .then(() => console.log(`已经复制${v}`))
-            .catch(err => console.log(err))
-            .then(() =>
-                promisify(fs.unlink)
-                (path.resolve(targetPath, v))
-                    .then(() => console.log(`已经删除${v}`))
-            )
-    }))
-}
 
 
 run(_map)
