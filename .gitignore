@@ -1,5 +1,8 @@
 .idea/
 随机按照序号重命名/test
+
 class/node_modules/
 爬虫/node_modules/
 .vscode/launch.json
+
+**/node_modules/

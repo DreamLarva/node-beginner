@@ -1,3 +1,9 @@
 console.log("starting notes.js")
 
-module.exports = "123"
+var a = {b:1};
+setInterval(()=> a.b++ ,500);
+
+
+// module.exports = a;
+exports.add = a
+

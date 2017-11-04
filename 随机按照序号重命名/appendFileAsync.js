@@ -1,7 +1,6 @@
 const fs = require("fs")
 const path = require("path")
 
-
 function appendAFileA() {
     return new Promise((resolve, reject) =>
         fs.appendFile(path.join(__dirname, "test", (Math.random() * 100000).toFixed(5) + ".txt"), Math.random(), (error) => {
