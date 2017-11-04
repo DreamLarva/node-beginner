@@ -63,7 +63,7 @@ const deleteDirectory = async _path => {
 
 
     });
-    await  Promise.all(PromiseArr)
+    await  Promise.all(PromiseArr);
     await rmdir(_path)
 };
 // const deleteDirectory = (_path) => {
