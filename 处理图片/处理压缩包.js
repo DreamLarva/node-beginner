@@ -1,21 +1,31 @@
 const fs = require("fs");
 const path = require("path");
 const promisify = require("util").promisify;
-const type = require("./type.json").type;
+const allType = require("./type.json").all;
+const mediaType = require("./type.json").media
+const explainMd5 = require("./md5");
 
-const rootDirectoryPath = "E:\\test";
-// const rootDirectoryPath = "D:\\download\\t";
-const targetPathForOther = "d:\\test\\other";
-const targetPathForGif = "D:\\test\\gif";
 
+// const rootDirectoryPath = "E:\\test";
+const rootDirectoryPath = "D:\\download\\t";
+
+const targetPathForOther = "d:\\整理\\other";
+const targetPathForGif = "D:\\整理\\gif";
+const targetPathForMedia = "D:\\整理\\media";
+const targetPathForPic = "D:\\整理\\pic";
+
+const directoryMax = 500;
+let totalCount = 0;
 
 async function main(rootDirectoryPath) {
     "use strict";
-    await OneStep(rootDirectoryPath)
+    return OneStep(rootDirectoryPath)
         .catch(err => console.log(err))
 }
 
+console.time("time");
 main(rootDirectoryPath)
+    .then(console.timeEnd("time"))
     .catch(err => console.log(err));
 
 
@@ -30,23 +40,68 @@ async function OneStep(rootDirectoryPath) {
             OneStep(filePath)
                 .catch(err => console.log(err))
         } else {
-            if (!new RegExp(type, "i").test(path.extname(filePath))) {
-                let timestamp = "";
-                try {
-                    await open(filePath)
-                } catch (error) {
-                    console.log(error);
-                    timestamp = Date.now()
-                }
-                cut(filePath, path.resolve(targetPathForOther, path.basename(file) + timestamp + path.extname(file)));
+
+            if (!new RegExp(allType, "i").test(path.extname(filePath))) {
+                await otherContainer(filePath, targetPathForOther, file, executeFile)
+
 
             } else if (new RegExp("gif", "i").test(path.extname(filePath))) {
-                // cut(filePath,path.resolve(targetPathForGif, file));
+                await gifContainer(filePath, targetPathForGif, file, executeFile)
 
+            } else if (new RegExp(mediaType, "i").test(path.extname(filePath))) {
+                await mediaContainer(filePath, targetPathForMedia, file, executeFile)
+
+            } else {
+                // await picContainer(filePath, targetPathForPic, file, executeFile)
             }
         }
 
     }
+}
+
+const otherContainer = orderDir();
+const gifContainer = orderDir();
+
+const mediaContainer = orderDir();
+const picContainer = orderDir();
+
+
+// 分组文件夹
+function orderDir(dirName = 1, count = 1) {
+    return function (filePath, targetPath, file, promiseFun) {
+        return Promise.resolve()
+            .then(() => {
+
+                if (count > directoryMax) {
+                    count = 1;
+                    dirName++
+                }
+                count++;
+            })
+            .then(() =>
+                mkdir(targetPath, String(dirName))
+            )
+            .catch(err => console.log(`${targetPath}文件夹已经存在了`))
+            .then(() => promiseFun(filePath, path.resolve(targetPath, String(dirName), file)))
+
+    };
+}
+
+function executeFile(filePath, targetPath) {
+    "use strict";
+    return open(filePath, targetPath)
+        .then(() => cut(filePath, targetPath))
+        .catch(async () =>
+            cut(filePath, path.resolve(path.dirname(targetPath),
+                path.basename(filePath,path.extname(filePath)) +　Date.now() + path.extname(filePath))
+            )
+        )
+        // .catch(async () =>
+        //     cut(filePath, path.resolve(path.dirname(targetPath),
+        //         await explainMd5(filePath) + path.extname(filePath))
+        //     )
+        // )
+
 }
 
 
@@ -56,29 +111,35 @@ function readdir(targetPath) {
     return promisify(fs.readdir)(targetPath)
 }
 
+
 // 新建文件夹
 function mkdir(targetPath, directoryName) {
     "use strict";
     return promisify(fs.mkdir)(path.resolve(targetPath, directoryName))
         .then(() => console.log(`新建${directoryName}文件夹 成功`))
-        .catch(() => console.log(`${directoryName}文件夹 已经存在`))
+        .catch(() =>{/*console.log(`${directoryName}文件夹 已经存在`)*/} )
 
 }
 
 // 处理文件 剪切
-function cut(filePath, targetPath) {
+async function cut(filePath, targetPath) {
     "use strict";
+
     return promisify(fs.copyFile)
     (filePath, targetPath)
-        .then(() => console.log(`已经复制${path.basename(targetPath)}`))
+        .then(() => {
+            console.log(`已经复制${path.basename(targetPath)}`)
+        })
         .catch(err => {
             console.log(`复制${path.basename(targetPath)}失败`);
             console.log(err);
+            return Promise.reject(err)
         })
         .then(() =>
             promisify(fs.unlink)
             (filePath)
-                .then(() => console.log(`已经删除${path.basename(filePath)}`))
+            .then(() => console.log(`已经删除${path.basename(filePath)}`))
+                .then(() => console.log(`处理了${totalCount++}`))
         )
 
 }
@@ -98,3 +159,4 @@ const isDirectory = stat => stat.isDirectory();
 const open = path => {
     return promisify(fs.open)(path, "wx")
 };
+
