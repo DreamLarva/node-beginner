@@ -5,8 +5,8 @@ const type = require("./type.json").type;
 
 const rootDirectoryPath = "E:\\test";
 // const rootDirectoryPath = "D:\\download\\t";
-const targetPathForOther = "D:\\整理\\other";
-const targetPathForGif = "D:\\整理\\gif";
+const targetPathForOther = "d:\\test\\other";
+const targetPathForGif = "D:\\test\\gif";
 
 
 async function main(rootDirectoryPath) {
@@ -17,6 +17,7 @@ async function main(rootDirectoryPath) {
 
 main(rootDirectoryPath)
     .catch(err => console.log(err));
+
 
 // 读取一层文件夹
 async function OneStep(rootDirectoryPath) {
@@ -30,9 +31,18 @@ async function OneStep(rootDirectoryPath) {
                 .catch(err => console.log(err))
         } else {
             if (!new RegExp(type, "i").test(path.extname(filePath))) {
-                cut(filePath,path.resolve(targetPathForOther, file));
-            }else if(new RegExp("gif", "i").test(path.extname(filePath))){
-                cut(filePath,path.resolve(targetPathForGif, file));
+                let timestamp = "";
+                try {
+                    await open(filePath)
+                } catch (error) {
+                    console.log(error);
+                    timestamp = Date.now()
+                }
+                cut(filePath, path.resolve(targetPathForOther, path.basename(file) + timestamp + path.extname(file)));
+
+            } else if (new RegExp("gif", "i").test(path.extname(filePath))) {
+                // cut(filePath,path.resolve(targetPathForGif, file));
+
             }
         }
 
@@ -60,11 +70,10 @@ function cut(filePath, targetPath) {
     "use strict";
     return promisify(fs.copyFile)
     (filePath, targetPath)
-        .then(() => console.log(`已经复制${path.basename(filePath)}`))
+        .then(() => console.log(`已经复制${path.basename(targetPath)}`))
         .catch(err => {
-            console.log(`复制${path.basename(filePath)}失败`);
+            console.log(`复制${path.basename(targetPath)}失败`);
             console.log(err);
-            return Promise.reject()
         })
         .then(() =>
             promisify(fs.unlink)
@@ -85,3 +94,7 @@ const stat = path => promisify(fs.stat)(path)
 const isDirectory = stat => stat.isDirectory();
 
 
+// 是不是已经存在 存在就在catch 中执行
+const open = path => {
+    return promisify(fs.open)(path, "wx")
+};
