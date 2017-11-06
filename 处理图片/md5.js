@@ -2,7 +2,6 @@ var fs = require('fs');
 var crypto = require('crypto');
 
 
-
 function explainMd5(path) {
     "use strict";
     return new Promise((resolve, reject) => {
@@ -18,11 +17,14 @@ function explainMd5(path) {
 
             });
             stream.on('error', function (error) {
+                reject(error);
                 console.log(error)
             });
         }
     );
 
 }
+
+
 
 module.exports = explainMd5;
