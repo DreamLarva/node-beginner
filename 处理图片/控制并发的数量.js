@@ -2,7 +2,9 @@ class limit {
     constructor(num) {
         this.max = num; // 并发上限
         this.count = 0; // 处理的并发数量
-        this.queue = [] // 等待执行的并发的队列
+        this.queue = []; // 等待执行的并发的队列
+        this.queuequeueLimit = 1000; //
+        this.delay = 0; // 延迟法制
     }
 
     // 执行fun 返回的必须是一个 promise
@@ -25,10 +27,22 @@ class limit {
             this.queue.push(
                 fun.bind(this, ...args)
             );
-            console.log(`当前队列的长度${this.queue.length}`)
+            console.log(`***增加队列至长度${this.queue.length}`)
+        }
+    }
+
+    async push2(fun, ...args){
+        if(this.queue.length > 1000){
+            setTimeout(()=>
+                this.push2(fun, ...args),1000)
+        }else{
+            this.push(fun, ...args)
         }
 
+        // this.push(fun, ...args)
+
     }
+
 
     runAfterPromise() {
         if (--this.count < this.max && this.queue.length > 0) {
@@ -36,6 +50,7 @@ class limit {
             promise
                 .then(() => {
                     this.runAfterPromise();
+                    // console.log(`当前队列的长度${this.queue.length}`)
                 })
                 .catch(err => {
                     console.log(err);
@@ -48,14 +63,16 @@ class limit {
 
 function test() {
     "use strict";
-    const lim = new limit(100);
+    const lim = new limit(10);
     let _count = 0;
-    for (let i = 0; i < 1000; i++) {
-        lim.push(() =>
+    for (let i = 0; i < 10000; i++) {
+        lim.push2(() =>
             new Promise(resolve => {
                 "use strict";
                 setTimeout(() => {
                     // console.log(++_count);
+                    console.log(`当前队列的长度${lim.queue.length}`);
+
                     console.log(i); // 证明 确实是异步
                     resolve()
                 }, ~~(Math.random() * 1000));

@@ -2,19 +2,19 @@ const fs = require("fs");
 const path = require("path");
 const promisify = require("util").promisify;
 const allType = require("./type.json").all;
-const mediaType = require("./type.json").media
+const mediaType = require("./type.json").media;
 const explainMd5 = require("./md5");
 
 
 // const rootDirectoryPath = "E:\\test";
-const rootDirectoryPath = "D:\\download\\t";
+const rootDirectoryPath = "E:\\Downloads\\图片";
 
-const targetPathForOther = "d:\\整理\\other";
-const targetPathForGif = "D:\\整理\\gif";
-const targetPathForMedia = "D:\\整理\\media";
-const targetPathForPic = "D:\\整理\\pic";
+const targetPathForOther = "e:\\整理\\other";
+const targetPathForGif = "e:\\整理\\gif";
+const targetPathForMedia = "e:\\整理\\media";
+const targetPathForPic = "e:\\整理\\pic";
 
-const directoryMax = 500;
+const directoryMax = 2000;
 let totalCount = 0;
 
 async function main(rootDirectoryPath) {
@@ -44,7 +44,6 @@ async function OneStep(rootDirectoryPath) {
             if (!new RegExp(allType, "i").test(path.extname(filePath))) {
                 await otherContainer(filePath, targetPathForOther, file, executeFile)
 
-
             } else if (new RegExp("gif", "i").test(path.extname(filePath))) {
                 await gifContainer(filePath, targetPathForGif, file, executeFile)
 
@@ -52,7 +51,7 @@ async function OneStep(rootDirectoryPath) {
                 await mediaContainer(filePath, targetPathForMedia, file, executeFile)
 
             } else {
-                // await picContainer(filePath, targetPathForPic, file, executeFile)
+                await picContainer(filePath, targetPathForPic, file, executeFile)
             }
         }
 
@@ -71,7 +70,6 @@ function orderDir(dirName = 1, count = 1) {
     return function (filePath, targetPath, file, promiseFun) {
         return Promise.resolve()
             .then(() => {
-
                 if (count > directoryMax) {
                     count = 1;
                     dirName++
