@@ -33,7 +33,7 @@ async function orderDir(filePath, targetPath, allDirInfo, dirInfo, configItem) {
             console.log(`${path.resolve(targetPath, existMaxDir + 1)}文件夹已经存在了`)
         }
         // rename 文件
-        await rename(filePath,path.resolve(targetPath, existMaxDir + 1));
+        await rename(filePath,path.resolve(targetPath, String(existMaxDir + 1)));
         // 添加可选的 文件夹
         allDirInfo[configItem.dirName] = [{
             dirName: path.resolve(targetPath, String(existMaxDir + 1)), length: 1
