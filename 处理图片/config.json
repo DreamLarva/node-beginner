@@ -1,0 +1,24 @@
+[
+  {
+    "dirName":"other",
+    "RegExp":"^(?!.*(jpg|jpeg|png|gif|webm|mp4|avi|mpg|swf)+.*$).*",
+    "maxFiles":100
+  },
+  {
+    "dirName":"media",
+    "RegExp":"webm|mp4|avi|mpg|swf",
+    "maxFiles":100
+  },
+  {
+    "dirName":"gif",
+    "RegExp":"gif",
+    "maxFiles":500
+  },
+  {
+    "dirName":"pic",
+    "RegExp":"pg|jpeg|png",
+    "maxFiles":4000
+  }
+]
+
+

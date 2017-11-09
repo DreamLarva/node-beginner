@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const promisify = require("util").promisify;
-const allType = require("./type.json").all;
-const mediaType = require("./type.json").media;
+const allType = require("./config.json").all;
+const mediaType = require("./config.json").media;
 const explainMd5 = require("./md5");
 
 

@@ -1,4 +1,4 @@
-class limit {
+module.exports = class limit {
     constructor(num) {
         this.max = num; // 并发上限
         this.count = 0; // 处理的并发数量
@@ -82,6 +82,6 @@ function test() {
     }
 }
 
-test();
+// test();
 
 

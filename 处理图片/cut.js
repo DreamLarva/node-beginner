@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const promisify = require("util").promisify;
-const type = require("./type.json").type;
+const type = require("./config.json").type;
 const explainMd5 = require("./md5");
 
 const rootDirectoryPath = "E:\\test";

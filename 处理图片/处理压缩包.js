@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const promisify = require("util").promisify;
-const allType = require("./type.json").all;
-const mediaType = require("./type.json").media;
+const allType = require("./config.json").all;
+const mediaType = require("./config.json").media;
 const explainMd5 = require("./md5");
 
 
@@ -89,16 +89,16 @@ function executeFile(filePath, targetPath) {
     "use strict";
     return open(filePath, targetPath)
         .then(() => cut(filePath, targetPath))
-        .catch(async () =>
-            cut(filePath, path.resolve(path.dirname(targetPath),
-                path.basename(filePath,path.extname(filePath)) +　Date.now() + path.extname(filePath))
-            )
-        )
         // .catch(async () =>
         //     cut(filePath, path.resolve(path.dirname(targetPath),
-        //         await explainMd5(filePath) + path.extname(filePath))
+        //         path.basename(filePath,path.extname(filePath)) +　Date.now() + path.extname(filePath))
         //     )
         // )
+        .catch(async () =>
+            rename(filePath, path.resolve(path.dirname(targetPath),
+                await explainMd5(filePath) + path.extname(filePath))
+            )
+        )
 
 }
 
@@ -158,3 +158,11 @@ const open = path => {
     return promisify(fs.open)(path, "wx")
 };
 
+function rename(oldPath, newPath) {
+    "use strict";
+    return promisify(fs.rename)(oldPath, newPath)
+        .then(() => {
+            console.log(`${oldPath} => ${newPath}`)
+        })
+        .then(() => console.log(`处理了${totalCount++}`))
+}
