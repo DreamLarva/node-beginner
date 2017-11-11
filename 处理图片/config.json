@@ -17,7 +17,7 @@
   {
     "dirName":"pic",
     "RegExp":"pg|jpeg|png",
-    "maxFiles":4000
+    "maxFiles":5000
   }
 ]
 
