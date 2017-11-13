@@ -16,7 +16,7 @@
   },
   {
     "dirName":"pic",
-    "RegExp":"pg|jpeg|png",
+    "RegExp":"jpg|jpeg|png",
     "maxFiles":4000
   }
 ]

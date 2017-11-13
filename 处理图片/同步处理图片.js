@@ -7,7 +7,7 @@ const config = require("./config.json");
 const explainMd5 = require("./md5");
 
 
-const rootDirectoryPath = "E:\\test2";
+const rootDirectoryPath = "F:\\mine";
 let totalCount = 0;
 
 
@@ -17,7 +17,7 @@ async function orderDir(filePath, targetPath, allDirInfo, dirInfo, configItem) {
     // console.log(dirInfo);
     // console.log(allDirInfo);
     if (dirInfo && dirInfo.length !== 0) {
-        await rename(filePath,dirInfo[0].dirName);
+        await rename(filePath, dirInfo[0].dirName);
         if (dirInfo.length !== 0) {
             dirInfo[0].length++;
             if (dirInfo[0].length === configItem.maxFiles) dirInfo.shift()
@@ -25,15 +25,21 @@ async function orderDir(filePath, targetPath, allDirInfo, dirInfo, configItem) {
     } else {
         // todo 没有可选的文件夹
         // 新建文件夹
-        const dirs =  fs.readdirSync(targetPath);
-        let existMaxDir = Math.max(...dirs.map(v => Number(v)));
+        const dirs = fs.readdirSync(targetPath);
+        let existMaxDir;
+        if (dirs.length === 0) {
+            existMaxDir = 0
+        } else {
+            existMaxDir = Math.max(...dirs.map(v => Number(v)));
+        }
         try {
+
             fs.mkdirSync(path.resolve(targetPath, String(existMaxDir + 1)));
         } catch (err) {
             console.log(`${path.resolve(targetPath, existMaxDir + 1)}文件夹已经存在了`)
         }
         // rename 文件
-        await rename(filePath,path.resolve(targetPath, String(existMaxDir + 1)));
+        await rename(filePath, path.resolve(targetPath, String(existMaxDir + 1)));
         // 添加可选的 文件夹
         allDirInfo[configItem.dirName] = [{
             dirName: path.resolve(targetPath, String(existMaxDir + 1)), length: 1
@@ -41,7 +47,8 @@ async function orderDir(filePath, targetPath, allDirInfo, dirInfo, configItem) {
 
 
     }
-    async function rename(filePath,targetPath){
+
+    async function rename(filePath, targetPath) {
         "use strict";
         if (/[a-f0-9]{32}/.test(path.basename(filePath))) {
             // 已经是md5
@@ -53,6 +60,7 @@ async function orderDir(filePath, targetPath, allDirInfo, dirInfo, configItem) {
             fs.renameSync(filePath, path.resolve(targetPath, fileMd5 + path.extname(filePath)));
         }
     }
+
     // if (dirName === 1 && count === 1) {
     //     try {
     //         fs.mkdirSync(path.resolve(targetPath, String(dirName)));
