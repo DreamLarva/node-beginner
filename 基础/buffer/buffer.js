@@ -9,13 +9,13 @@ console.log(bin); // => <Buffer 68 65 6c 6c 6f>
 console.log(dup); // => <Buffer 48 65 65 6c 6f>
 console.log(recommend);
 
-var rs = fs.createReadStream("testBig.pdf");
-var ws = fs.createWriteStream("write.pdf");
+var rs = fs.createReadStream("test.md");
+var ws = fs.createWriteStream("testTarget.md");
 
 
 rs.on('data', function (chunk) {
     const isDrain = (ws.write(chunk));
-    console.log(isDrain)
+    console.log(isDrain);
     if (isDrain === false) {
         rs.pause();
     }
@@ -23,7 +23,7 @@ rs.on('data', function (chunk) {
 
 
 ws.on('drain', function () {
-    console.log("drain")
+    console.log("drain");
     rs.resume();
 });
 
