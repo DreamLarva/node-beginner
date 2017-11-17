@@ -5,7 +5,7 @@ function divEscapedContentElement(message) {
 
 function divSystemContentElement(message) {
     "use strict";
-    return $("<div></div>").html(`<i>${message}</i>>`)
+    return $("<div></div>").html(`<i>${message}</i>`)
 }
 
 function processUserInput(chatApp, socket) {
@@ -18,7 +18,7 @@ function processUserInput(chatApp, socket) {
             $('#messages').append(divSystemContentElement(systemMessage))
         }
     } else {
-        chatApp.sendMessage($("#room").text(), message);
+        chatApp.sendMessage($("#room-list").text(), message);
         $("#messages").append(divEscapedContentElement(message));
         $("#message").scrollTop($("messages").prop("scrollHeight"))
     }
@@ -41,7 +41,7 @@ $(document).ready(function () {
     });
 
     socket.on('joinResult',function(result){
-        $("#room").text(result.room);
+        $("#room-list").text(result.room);
         $("#messages").append(divSystemContentElement("Room changed."))
     });
 
@@ -52,7 +52,6 @@ $(document).ready(function () {
     socket.on("rooms",function (rooms) {
         $('#room-list').empty();
         for(let  room of rooms){
-            room = room.substring(1,room.length);
             if(room !== ""){
                 $("#room-list").append(divEscapedContentElement(room))
             }

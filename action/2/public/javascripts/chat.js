@@ -1,22 +1,25 @@
-class Chat{
-    constructor(socket){
+class Chat {
+    constructor(socket) {
         this.socket = socket
     }
-    sendMessage(room,text){
-        this.socket.emit("message",{room,text})
+
+    sendMessage(room, text) {
+        this.socket.emit("message", {room, text})
     }
-    changeRoom(room){
-        this.socket.emit("join",{
-            newRoom:room
+
+    changeRoom(room) {
+        this.socket.emit("join", {
+            newRoom: room
         })
     }
-    processCommand(command){
+
+    processCommand(command) {
         let words = command.split(" ");
-        let command = words[0]
-            .substring(1,words[0].length)
+        command = words[0]
+            .substring(1, words[0].length)
             .toLowerCase();
         let message = false;
-        switch(command){
+        switch (command) {
             case "join":
                 words.shift();
                 var room = words.join(" ");
@@ -25,7 +28,7 @@ class Chat{
             case 'nick':
                 words.shift();
                 var name = words.join(" ");
-                this.socket.emit("nameAttempt",name);
+                this.socket.emit("nameAttempt", name);
                 break;
             default:
                 message = 'Unrecongnized command.';
