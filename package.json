@@ -12,6 +12,7 @@
   "dependencies": {
     "bluebird": "^3.5.1",
     "cheerio": "^1.0.0-rc.2",
+    "formidable": "^1.1.1",
     "htmlparser": "^1.7.7",
     "mime": "^2.0.3",
     "request": "^2.83.0",

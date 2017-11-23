@@ -20,7 +20,7 @@ const server = http.createServer(function (req, res) {
     }
 });
 
-server.listen(3000)
+server.listen(3000);
 
 function show(res) {
     "use strict";
@@ -44,7 +44,7 @@ function show(res) {
         </html>`;
 
     res.setHeader('Content-Type','text/html');
-    res.setHeader('Content-Length',Buffer.byteLength(html))
+    res.setHeader('Content-Length',Buffer.byteLength(html));
     res.end(html)
 }
 
@@ -66,13 +66,15 @@ function add(req,res) {
     });
     req.on('end',function(){
         const obj = qs.parse(body);
+        console.log(body);
+        console.log(obj);
         items.push(obj.item);
         show(res)
     })
 }
 
 
-function badRequest() {
+function badRequest(res) {
     "use strict";
     res.statusCode = 400;
     res.setHeader('Content-type','text/plain');
