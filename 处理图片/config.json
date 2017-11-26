@@ -1,12 +1,12 @@
 [
   {
     "dirName":"other",
-    "RegExp":"^(?!.*(jpg|jpeg|png|gif|webm|mp4|avi|mpg|swf)+.*$).*",
+    "RegExp":"^(?!.*(jpg|jpeg|png|gif|webm|mp4|avi|mpg|swf|wmv|mkv|rmvb|iso|mov|rm)+.*$).*",
     "maxFiles":100
   },
   {
     "dirName":"media",
-    "RegExp":"webm|mp4|avi|mpg|swf",
+    "RegExp":"webm|mp4|avi|mpg|swf|wmv|mkv|rmvb|iso|mov|rm",
     "maxFiles":100
   },
   {
@@ -17,7 +17,7 @@
   {
     "dirName":"pic",
     "RegExp":"jpg|jpeg|png",
-    "maxFiles":4000
+    "maxFiles":5000
   }
 ]
 
