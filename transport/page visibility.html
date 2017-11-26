@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.js"></script>
+</head>
+<body>
+<script>
+window.addEventListener('visibilitychange',()=>{
+    const title = $('title');
+    if(document.hidden){
+        title.text("❤️当前不在看这个tab")
+    }else{
+        title.text("🔍️重新返回这个tab")
+    }
+
+    switch(document.visibilityState){
+        case 'prerender':
+            console.log('Tab is pre-randing');
+            break;
+        case 'hidden':
+            console.log('Tab is hidden');
+            break;
+        case 'visible':
+            console.log('Tab is focused');
+            break;
+    }
+})
+
+
+</script>
+
+
+
+</body>
+</html>

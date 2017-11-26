@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    window.addEventListener('offline',networkStatus);
+    window.addEventListener('online',networkStatus);
+
+    function networkStatus(e){
+        console.log(e.type)
+    }
+</script>
+</body>
+</html>
