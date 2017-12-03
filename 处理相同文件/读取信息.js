@@ -19,6 +19,7 @@ function main(rootPath){
              data.push({
                  path:filePath,
                  fileName:path.basename(filePath),
+                 size:stat.size,
                  key:(path.basename(filePath).match(/[a-zA-Z][\da-zA-Z]{2,3}-?[\da-zA-Z]{3,4}/g) || []).filter(
                      function(value){
                          return /\d/.test(value)
