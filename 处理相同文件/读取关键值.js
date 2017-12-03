@@ -1,9 +1,14 @@
-const data = require("./data")
+const data = require("./data");
+const fs = require("fs");
+const path = require("path");
 
-const keys = new Set();
+const keys = {};
 for(let item of data){
     item.key.forEach(function(value){
-        keys.add(value.replace(/-/,""))
+        let key  = value.replace(/-/,"").toLowerCase();
+        !keys[key] &&  (keys[key] = []);
+       keys[key].push(item.path)
     })
 }
-console.log(keys.size);
+console.log(Object.entries(keys).filter(v=>v[1].length>1));
+fs.writeFileSync(path.resolve(__dirname,"result.json"),JSON.stringify(Object.entries(keys).filter(v=>v[1].length>1)));

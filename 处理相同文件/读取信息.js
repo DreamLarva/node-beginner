@@ -19,7 +19,7 @@ function main(rootPath){
              data.push({
                  path:filePath,
                  fileName:path.basename(filePath),
-                 key:(path.basename(filePath).match(/[a-zA-Z][\d\w]{2,3}-?[\d\w]{3,4}/g) || []).filter(
+                 key:(path.basename(filePath).match(/[a-zA-Z][\da-zA-Z]{2,3}-?[\da-zA-Z]{3,4}/g) || []).filter(
                      function(value){
                          return /\d/.test(value)
                      }

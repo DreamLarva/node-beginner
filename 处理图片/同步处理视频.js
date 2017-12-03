@@ -7,7 +7,7 @@ const config = require("./config.json");
 const explainMd5 = require("./md5");
 
 
-const rootDirectoryPath = "F:\\mine";
+const rootDirectoryPath = "G:\\mine";
 let totalCount = 0;
 
 
