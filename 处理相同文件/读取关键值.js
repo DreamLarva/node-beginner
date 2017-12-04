@@ -14,12 +14,12 @@ for (let item of data) {
     })
 }
 
-const writeDate = Object.entries(keys).filter(v => v[1].length > 1).map(function (v) {
-    return [v[0], v[1].sort(function (a, b) {
-        return b.size - a.size
-    })
-    ]
+const writeDate = Object.entries(keys).filter(v => v[1].length > 1)
+    .map(function (v) {
+        return [v[0], v[1].sort(function (a, b) {
+            return b.size - a.size
+        })]
 
 
-});
+    });
 fs.writeFileSync(path.resolve(__dirname, "result.json"), JSON.stringify(writeDate));
