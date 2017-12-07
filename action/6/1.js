@@ -3,7 +3,7 @@ const app = connect();
 
 
 app.use(logger);
-app.use("/admin", restrict);
+app.use("/admin", restrict); // 如果在回调中 查看 req.url 返回 会去掉/admin的之后的部分
 app.use("/admin", adminOnly);
 app.use(hello);
 
@@ -13,6 +13,17 @@ function logger(req, res, next) {
     "use strict";
     console.log('%s %s', req.method, req.url);
     next()
+}
+
+function setup(format){
+    const regexp = /:(\w)/g;
+    return function logger(req,res,next){
+        const str = format.replace(regexp,function(match,property){
+            return req[property]
+        });
+        console.log(str);
+        next();
+    }
 }
 
 function hello(req, res) {
@@ -28,7 +39,8 @@ function adminOnly(req, res, next) {
 }
 
 function restrict(req, res, next) {
-    "use strict";
+    "use strict"
+    console.log("url",req.url)
     const authorization = req.headers.authorization;
     if (!authorization) return next(new Error("Unauthorized"));
     const parts = authorization.split((' '));
