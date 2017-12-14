@@ -1,3 +1,5 @@
 .idea/
-随机按照序号重命名/test
+.vscode/
+
+**/test
 **/node_modules/

@@ -1,8 +1,8 @@
 const fs = require("fs")
-var zlib = require('zlib');
+const zlib = require('zlib');
 
-var rs = fs.createReadStream("testBig.pdf");
-var ws = fs.createWriteStream("testBig_write.pdf");
+const rs = fs.createReadStream("test.md");
+const ws = fs.createWriteStream("testBig_write.pdf");
 rs.pipe(ws);
 console.log("复制完毕");
 

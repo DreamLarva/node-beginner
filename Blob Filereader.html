@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+
+    const blob = new Blob([1,2,3,4,5],[6,7,8,9,0]);
+
+    const reader = new FileReader();
+
+    reader.onabort = function(){
+        console.log("onabort")
+    };
+    reader.onerror = function(){
+        console.log("onerror")
+    };
+    reader.onload = function(e){
+        console.log(reader.result);
+        console.log("onload")
+    };
+    reader.onloadend = function(){
+        console.log("onloadend")
+    };
+    reader.onloadstart = function(){
+        console.log("onloadstart")
+    };
+    reader.onprogress = function(){
+        console.log("onprogress")
+    };
+
+//    reader.readAsDataURL(blob);         // data:;base64,MTIzNDU=
+    reader.readAsArrayBuffer(blob);    // ArrayBuffer(5) {}
+//    reader.readAsBinaryString(blob); // 12345
+//    reader.readAsText(blob);         // 12345
+
+</script>
+</body>
+</html>
