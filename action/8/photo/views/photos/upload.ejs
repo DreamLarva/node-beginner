@@ -9,17 +9,12 @@
     <link rel="stylesheet" href="/stylesheets/photos.css">
 </head>
 <body>
-<h1>Photos</h1>
-<p>Express stock photo application.</p>
-<div id="photos">
-    <% photos.forEach(function(photo){ %>
-    <div class="photo">
-        <h2><%= photo.name %></h2>
-        <img src="<%=photo.path%>">
-    </div>
-    <% }) %>
-</div>
-<p><%= a %></p>
-<p><%= b %></p>
+<h1><%= title  %></h1>
+<p>Upload a photo to your account below.</p>
+<form method="post" enctype="multipart/form-data">
+    <p><input type="text" name="photoName" placeholder="Name" /></p>
+    <p><input type="file" name="photoImage" /></p>
+    <p><input type="submit" value="Upload"></p>
+</form>
 </body>
 </html>

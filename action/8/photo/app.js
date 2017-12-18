@@ -4,6 +4,9 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var multer = require('multer');
+var upload = multer({dest: 'temp/'});
+
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -25,11 +28,20 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-
 app.use('/', index);
 app.use('/users', users);
-app.locals.a=666
-app.use('/photos',photos.list)
+
+app.set('photos', __dirname + '/public/photos');
+app.use('/photos', photos.list);
+
+app.get('/upload', photos.form);
+app.post('/upload', upload.single("photoImage"), photos.submit(app.get('photos')));
+
+app.get('/photo/:id/download',photos.download(app.get('photos')));
+
+
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
