@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+</head>
+<body>
+
+<% include menu.ejs %>
+
+<% entries.forEach(function(entry){ %>
+    <div class="entry">
+        <h3><%= entry.title %></h3>
+        <p><%= entry.body %></p>
+        <p>Posted by <%= entry.username %></p>
+    </div>
+<% }) %>
+
+<% include pager.ejs %>
+</body>
+</html>

@@ -6,3 +6,18 @@ body {
 a {
   color: #00B7FF;
 }
+
+
+
+#menu > *{
+  padding-right: 10px;
+  text-decoration: none;
+}
+
+
+.info{
+ color:orange;
+}
+.error{
+  color:red
+}

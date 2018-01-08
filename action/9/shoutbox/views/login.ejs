@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+
+<% include menu.ejs %>
+
+<h1><%= title %></h1>
+<p>Fill in the form below to sign in!</p>
+
+<% include messages.ejs %>
+
+<form action="/login" method="post">
+    <p>
+        <input type="text" name="name" placeholder="Username">
+    </p>
+    <p>
+        <input type="password" name="pass" placeholder="Password">
+    </p>
+    <p>
+        <input type="submit" value="Login">
+    </p>
+
+</form>
+
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+</head>
+<body>
+
+<% include menu.ejs %>
+
+<h1><%= title %></h1>
+<p>Fill in the form below to add a new post.</p>
+
+<% include messages.ejs%>
+
+<form action="/post" method="post">
+    <p><input type="text" name="title" placeholder="Title"></p>
+    <p><textarea name="body" id="" cols="30" rows="10" placeholder="body"></textarea></p>
+    <p><input type="submit" value="Post"></p>
+</form>
+
+</body>
+</html>
