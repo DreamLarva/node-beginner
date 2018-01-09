@@ -48,6 +48,11 @@ app.use(messages);
 
 // router
 // region
+app.use(function(err,req,res,next){
+    console.log(err);
+    next(err)
+});
+
 app.use('/users', users);
 
 app.get('/register', register.form);
@@ -68,7 +73,7 @@ app.post('/post',
 
 app.get('/api/user/:id', api.user);
 app.post('/api/entry', entries.submit);
-
+app.get('/api/entries/:page?',page(Entry.count),api.entries);
 // endregion
 
 

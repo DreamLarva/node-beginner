@@ -1,6 +1,7 @@
 const express = require("express");
 const User = require('../lib/user');
 const basicAuth = require('basic-auth');
+const Entry = require('../lib/entry');
 
 
 exports.auth = function (req, res, next) {
@@ -17,8 +18,8 @@ exports.auth = function (req, res, next) {
         req.remoteUser = Credentials;
 
         const {name, pass} = Credentials;
-        User.authenticate(name, pass, function () {
-            // 将认证信息 放到locals上
+        User.authenticate(name, pass, function (err) {
+            if(err) return next(err);
             console.log("验证通过");
             next()
         });
@@ -31,8 +32,26 @@ exports.user = function (req, res, next) {
         if (err) return next(err);
         if (!user.id) return res.send(404);
         res.json({
-            name:user.name,
-            id:user.id
+            name: user.name,
+            id: user.id
         });
+    })
+};
+
+
+exports.entries = function (req, res, next) {
+    const page = req.page;
+    Entry.getRange(page.from, page.to, function (err, entries) {
+        if (err) return next(err);
+
+        res.format({
+            ['json']() {
+                res.send(entries);
+            },
+            ['xml']() {
+                res.render('entries/xml', {entries})
+            }
+        });
+
     })
 };

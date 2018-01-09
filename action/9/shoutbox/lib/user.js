@@ -71,7 +71,7 @@ module.exports = class User {
         const self = this;
         self.getByName(name, function (err, self) {
             if (err) return fn(err);
-            if (!self.id) return fn();
+            if (!self.id) return fn(new Error("没有找到用户"));
             bcrypt.hash(pass, self.salt, function (err, hash) {
                 if (err) return fn(err);
                 if (hash === self.pass) return fn(null, self);
