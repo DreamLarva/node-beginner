@@ -1,26 +1,34 @@
 const puppeteer = require('puppeteer');
 
 
-function arrangeDate() {
-    const date = new Date();
-    const day = date.getDay();
-    const hour = date.getHours();
-    const minute = date.getMinutes();
-    let delay = 0;
-    if (day === 6) {
-        delay += 1000 * 60 * 60 * 24; // 一天的毫秒数
-    }
-    if (day === 7) {
-        delay += 1000 * 60 * 60 * 24; // 一天的毫秒数
-    }
+async function arrangeDate() {
 
-    const timeMap = [[new Date().setTime()],[]]
+    const section = [
+        [setTodayTime(9,30),setTodayTime(9,45)],
+        [setTodayTime(17,15),setTodayTime(17,30)]
+    ];
+
+    // 只要落在区间内 执行主进程
+    await main(section)
+
+    // 定时器 准备下一次执行
+    // todo
+
+
+
 }
 
-arrangeDate();
+function setTodayTime(hours,minutes){
+    const date = new Date();
+    date.setHours(hours);
+    date.setMinutes(minutes);
+    return date
 
-/*
-(async () => {
+}
+
+// arrangeDate();
+
+async function main(section){
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
     await page.goto("http://itsp.orientsec.com.cn/dfzq-sign/sign.do");
@@ -28,9 +36,16 @@ arrangeDate();
     await page.type('#password','a13579',{delay:100});
     await page.click('#loginBtn');
     await page.waitFor(2000);
+}
 
-    // await page.screenshot({path: 'example.png'});
 
-    // await browser.close();
-})();
-*/
+// 最后一次校验 保证不会在非正常时间执行
+function  valid() {
+    const date = new Date();
+    return (
+        date.getDay() === 6 ||
+        date.getDay() === 7 ||
+        date.getHours() === 9 ||
+        date.getHours() === 17
+    )
+}
