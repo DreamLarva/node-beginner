@@ -25,7 +25,7 @@ function setTodayTime(hours, minutes) {
 
 }
 
-tempUse()
+// tempUse()
 
 function tempUse() {
     const nowTimeStamp = Date.now()
@@ -40,9 +40,7 @@ function tempUse() {
 
 async function main(section) {
 
-    if(valid()){
-        throw new Error("并不能不正确的时间执行")
-    }
+
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
     // 进入页面
@@ -65,11 +63,11 @@ async function main(section) {
 
     const signOut = await signFrame.$("#signOutDialog>div>*:last-child>a")
 
-    // await signOut.click();
-    //
-    // await page.waitFor(1000);
-    //
-    // await browser.close();
+    await signOut.click();
+
+    await page.waitFor(1000);
+
+    await browser.close();
 
 
 }
