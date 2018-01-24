@@ -2,12 +2,15 @@ const fs = require("fs");
 const path = require("path");
 const promisify = require("util").promisify;
 
+const readdir = promisify(fs.readdir);
+
 
 const config = require("./config.json");
 const explainMd5 = require("./md5");
 
 
-const rootDirectoryPath = "F:\\mine";
+const fromDir = "";
+const toDir = "";
 let totalCount = 0;
 
 
@@ -110,47 +113,106 @@ async function startExecute(rootDirectoryPath, existDirInfo) {
     }
 }
 
-async function getDirInfo(rootDirectoryPath) {
+async function getDirInfo(rootDirName) {
     "use strict";
-    const files = await promisify(fs.readdir)(rootDirectoryPath);
-    return Promise.all(files
-        .filter(v => v !== "temp")
-        .map(async dirName => {
-            const files = await promisify(fs.readdir)(path.resolve(rootDirectoryPath, dirName));
-            const result = [];
-            for (let file of files) {
-                const dirPath = path.resolve(rootDirectoryPath, dirName, file);
-                const innerFile = await promisify(fs.readdir)(dirPath);
-                result.push({
-                    dirName: dirPath,
-                    length: innerFile.length
+    const typeDirsArr = await readdir(rootDirName);
+    return Promise.all(typeDirsArr
+        // todo 过滤 temp 文件夹
+            .filter(typeDirName => typeDirName !== "temp")
+
+            // 查询所有类型内容的问题夹
+            .map(
+                async typeDirName => {
+
+                    const numDirsArr = await readdir(path.resolve(rootDirName, typeDirName));
+                    const result = [];
+
+                    //  查询每个类型的文件夹的 数字名命名的子文件夹
+                    for (let numDirsName of numDirsArr) {
+                        const numDirsNamePath = path.resolve(rootDirName, typeDirName, numDirsName);
+                        const filesArr = await readdir(numDirsNamePath);
+                        result.push({
+                            typeDirName,
+                            dirName: numDirsNamePath,
+                            length: filesArr.length
+                        })
+                    }
+                    return result
+                }
+            )
+    )
+        .then(typeDirsArr => {
+            const result = {};
+
+            typeDirsArr.forEach(typeDir => {
+                result[typeDir[0].typeDirName] = {availableDir: [], length: typeDir.length};
+                typeDir.forEach(numDir => {
+                    const typeDirNameInfo = result[numDir.typeDirName];
+                    numDir.length < getTargetTypeConfig(numDir.typeDirName) && typeDirNameInfo.availableDir.push(numDir);
+
                 })
-            }
-            return result
-        }))
-        .then(data => {
-            // console.log(data);
-            return data
+            });
+            console.log(result);
+
+
+            return typeDirsArr
+            // 过滤一个文件夹下都么的
                 .filter(function (v) {
                     return v.length !== 0
                 })
+
+                // 过滤已经达到文件上限的文件夹
                 .map(v => {
-                    const dirName = path.basename(path.join(v[0].dirName, ".."));
-                    const maxFiles = config.find(v => v.dirName === dirName).maxFiles;
+
+                    const typeDirInfo = getTargetTypeConfig(v[0].typeDirName);
                     return {
-                        [dirName]: v.filter(v => v.length !== maxFiles)
+                        [v[0].typeDirName]: v.filter(v => v.length !== typeDirInfo.maxFiles)
                     }
                 })
+
                 .reduce((pre, cur) => {
+                    // 合并数组
                     return Object.assign(pre, cur)
                 })
-
 
         })
 }
 
 
+async function getDirInfo2(rootDir) {
+    const result = {};
+
+    const typeDirsArr = (await readdir(rootDir)).filter(typeDirName => typeDirName !== "temp");
+
+    for (let typeDir  of typeDirsArr) {
+        result[typeDir] = {availableDir: [], length: 0};
+
+        const numDirsArr = await readdir(path.resolve(rootDir, typeDir));
+        result[typeDir].length = numDirsArr.length;
+        for (let numDir of numDirsArr) {
+            const dirPath = path.resolve(rootDir, typeDir, numDir);
+            const files = await readdir(dirPath);
+            const typeConfig = getTargetTypeConfig(typeDir);
+            if (files.length < typeConfig.maxFiles) {
+                result[typeDir].availableDir.push({
+                    dirPath,
+                    length: files.length
+                })
+            }
+        }
+    }
+}
+
+
+function getTargetTypeConfig(typeName) {
+    return config.find(v => v.dirName === typeName);
+}
+
+
+const rootDirectoryPath = "e:\\temp";
+
 getDirInfo(rootDirectoryPath)
     .then(filteredData =>
-        startExecute(path.resolve(rootDirectoryPath, "temp"), filteredData)
+            console.log(filteredData)
+        //startExecute(path.resolve(rootDirectoryPath, "temp"), filteredData)
     );

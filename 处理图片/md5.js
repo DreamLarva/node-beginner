@@ -1,30 +1,23 @@
-var fs = require('fs');
-var crypto = require('crypto');
+const fs = require('fs');
+const crypto = require('crypto');
+const promisify = require("util").promisify;
 
 
-function explainMd5(path) {
+function explainMd5(path, callback) {
     "use strict";
-    return new Promise((resolve, reject) => {
+    const md5sum = crypto.createHash('md5');
+    const stream = fs.createReadStream(path);
+    stream.on('data', function (chunk) {
+        md5sum.update(chunk);
+    });
+    stream.on('end', function () {
+        callback(null, md5sum.digest('hex'))
 
-            let md5sum = crypto.createHash('md5');
-            let stream = fs.createReadStream(path);
-            stream.on('data', function (chunk) {
-                md5sum.update(chunk);
-            });
-            stream.on('end', function () {
-                // console.log(md5sum.digest('hex'))
-                resolve(md5sum.digest('hex'))
-
-            });
-            stream.on('error', function (error) {
-                reject(error);
-                console.log(error)
-            });
-        }
-    );
-
+    });
+    stream.on('error', function (error) {
+        callback(error);
+    });
 }
 
 
-
-module.exports = explainMd5;
+module.exports = promisify(explainMd5);
