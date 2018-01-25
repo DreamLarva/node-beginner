@@ -7,18 +7,15 @@ const fs = require('fs');
 const promisify = require("util").promisify;
 
 
-function move(oldPath, newPath, callback) {
-    fs.rename(oldPath, newPath, function (err) {
-        if (err) {
-            if (err.code === "EXDEV") {
-                fs.copyFile(oldPath, newPath, fs.constants.COPYFILE_EXCL, callback);
-            } else {
-                callback(err)
-            }
-            return;
+async function move(oldPath, newPath) {
+    try {
+        await promisify(fs.rename)(oldPath, newPath)
+    } catch (err) {
+        if (err.code === "EXDEV") {
+            await promisify(fs.copyFile)(oldPath, newPath, fs.constants.COPYFILE_EXCL);
+            await promisify(fs.unlink)(oldPath)
         }
-        callback();
-    })
+    }
 }
 
-module.exports = promisify(move);
+module.exports = move;

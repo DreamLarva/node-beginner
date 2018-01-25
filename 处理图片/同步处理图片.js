@@ -1,68 +1,49 @@
 const fs = require("fs");
 const path = require("path");
 const promisify = require("util").promisify;
-
-const readdir = promisify(fs.readdir);
+const move = require('./move');
 
 
 const config = require("./config.json");
 const explainMd5 = require("./md5");
 
 
-const fromDir = "";
-const toDir = "";
+const storeRootDirectoryPath = "e:\\temp";
+const fromRootDirectoryPath = "d:\\temp";
 let totalCount = 0;
 
 
 // 分组文件夹
-async function orderDir(filePath, targetPath, allDirInfo, dirInfo, configItem) {
-    // console.log(filePath, targetPath, existDirInfo);
-    // console.log(dirInfo);
-    // console.log(allDirInfo);
-    if (dirInfo && dirInfo.length !== 0) {
-        await rename(filePath, dirInfo[0].dirName);
-        if (dirInfo.length !== 0) {
-            dirInfo[0].length++;
-            if (dirInfo[0].length === configItem.maxFiles) dirInfo.shift()
+async function orderDir(filePath, dirInfo,type) {
+    const availableDirsArr = dirInfo.availableDir;
+    if (availableDirsArr.length) {
+        // 有待用的文件夹
+        // 移动文件
+        const newFilePath  = await getNewFilePath(filePath, availableDirsArr[0],type);
+        try{
+            await move(filePath,newFilePath);
+        }catch(err){
+            console.log(err)
         }
+        // 后续任务
+        availableDirsArr[0].length++;
+        if (availableDirsArr[0].length === availableDirsArr[0].maxFiles) availableDirsArr.shift()
+
     } else {
-        // todo 没有可选的文件夹
-        // 新建文件夹
-        const dirs = fs.readdirSync(targetPath);
-        let existMaxDir;
-        if (dirs.length === 0) {
-            existMaxDir = 0
-        } else {
-            existMaxDir = Math.max(...dirs.map(v => Number(v)));
-        }
-        try {
-
-            fs.mkdirSync(path.resolve(targetPath, String(existMaxDir + 1)));
-        } catch (err) {
-            console.log(`${path.resolve(targetPath, existMaxDir + 1)}文件夹已经存在了`)
-        }
-        // rename 文件
-        await rename(filePath, path.resolve(targetPath, String(existMaxDir + 1)));
-        // 添加可选的 文件夹
-        allDirInfo[configItem.dirName] = [{
-            dirName: path.resolve(targetPath, String(existMaxDir + 1)), length: 1
-        }]
-
-
+        // 没有可选的文件夹
+        // 生成一个新的文件夹
+        const dirPath = path.resolve(dirInfo.path, String(++dirInfo.length));
+        const typeConfig = getTargetTypeConfig(type);
+        fs.mkdirSync(dirPath);
+        dirInfo.availableDir.push({
+            ...typeConfig,
+            dirPath,
+            length: 0,
+            maxFiles: typeConfig.maxFiles
+        });
+        await orderDir(filePath, dirInfo,type)
     }
 
-    async function rename(filePath, targetPath) {
-        "use strict";
-        if (/[a-f0-9]{32}/.test(path.basename(filePath))) {
-            // 已经是md5
-            console.log(`${filePath} => ${path.resolve(targetPath, path.basename(filePath))}`);
-            fs.renameSync(filePath, path.resolve(targetPath, path.basename(filePath)))
-        } else {
-            // 不是md5
-            const fileMd5 = await explainMd5(filePath);
-            fs.renameSync(filePath, path.resolve(targetPath, fileMd5 + path.extname(filePath)));
-        }
-    }
 
     // if (dirName === 1 && count === 1) {
     //     try {
@@ -87,132 +68,137 @@ async function orderDir(filePath, targetPath, allDirInfo, dirInfo, configItem) {
     // console.log(++totalCount, filePath => path.resolve(targetPath, String(dirName), fileMd5 + path.extname(file)))
 }
 
-async function startExecute(rootDirectoryPath, existDirInfo) {
+async function getNewFilePath(filePath, targetDir,type) {
     "use strict";
-    // 读取文件夹
-    const files = fs.readdirSync(path.resolve(rootDirectoryPath));
+    const typeConfig = getTargetTypeConfig(type);
+    const targetDirPath = targetDir.dirPath;
+    const fileBasename = path.basename(filePath);
+    if(!typeConfig.toMd5){
+
+        return path.resolve(targetDirPath,fileBasename)
+    }else{
+
+        if (/[a-f0-9]{32}/.test(path.basename(filePath))) {
+            // 已经是md5
+            return path.resolve(targetDirPath,fileBasename)
+        } else {
+            // 不是md5
+            const fileMd5 = await explainMd5(filePath);
+            return  path.resolve(targetDirPath, fileMd5 + path.extname(filePath))
+        }
+    }
+
+}
+
+
+// 分拣
+async function partition(filePath, existDirInfo) {
+    "use strict";
+    // 循环config文件 判断文件的格式 分拣
+    for (let item of config) {
+        if (new RegExp(item.RegExp, "i").test(path.extname(filePath))) {
+            await orderDir(filePath, existDirInfo[item.dirName],item.dirName)
+        }
+    }
+
+}
+
+// 递归读取文件夹
+async function recursionFolder(fromRootDirectoryPath, existDirInfo, callback) {
+    const files = fs.readdirSync(fromRootDirectoryPath);
     for (let file of files) {
         // 处理文件地址
-        let fileState = fs.statSync(path.resolve(rootDirectoryPath, file));
-        let filePath = path.resolve(rootDirectoryPath, file);
+        let fileState = fs.statSync(path.resolve(fromRootDirectoryPath, file));
+        let filePath = path.resolve(fromRootDirectoryPath, file);
 
         if (fileState.isDirectory()) {
             // 是文件夹 就递归
-            await startExecute(filePath, existDirInfo)
+            await recursionFolder(filePath, existDirInfo, callback)
+
         } else {
-            // 循环config文件 判断文件的格式 分拣
-            for (let item of config) {
-                if (new RegExp(item.RegExp, "i").test(path.extname(filePath))) {
-                    let targetPath = rootDirectoryPath.replace(/temp.*$/, "");
-                    targetPath = path.resolve(targetPath, item.dirName);
-                    // console.log(filePath, targetPath)
-                    await orderDir(filePath, targetPath, existDirInfo, existDirInfo[item.dirName], item)
-                }
-            }
+            // 文件就处理
+            await callback(filePath, existDirInfo)
         }
     }
 }
 
-async function getDirInfo(rootDirName) {
-    "use strict";
-    const typeDirsArr = await readdir(rootDirName);
-    return Promise.all(typeDirsArr
-        // todo 过滤 temp 文件夹
-            .filter(typeDirName => typeDirName !== "temp")
-
-            // 查询所有类型内容的问题夹
-            .map(
-                async typeDirName => {
-
-                    const numDirsArr = await readdir(path.resolve(rootDirName, typeDirName));
-                    const result = [];
-
-                    //  查询每个类型的文件夹的 数字名命名的子文件夹
-                    for (let numDirsName of numDirsArr) {
-                        const numDirsNamePath = path.resolve(rootDirName, typeDirName, numDirsName);
-                        const filesArr = await readdir(numDirsNamePath);
-                        result.push({
-                            typeDirName,
-                            dirName: numDirsNamePath,
-                            length: filesArr.length
-                        })
-                    }
-                    return result
-                }
-            )
-    )
-        .then(typeDirsArr => {
-            const result = {};
-
-            typeDirsArr.forEach(typeDir => {
-                result[typeDir[0].typeDirName] = {availableDir: [], length: typeDir.length};
-                typeDir.forEach(numDir => {
-                    const typeDirNameInfo = result[numDir.typeDirName];
-                    numDir.length < getTargetTypeConfig(numDir.typeDirName) && typeDirNameInfo.availableDir.push(numDir);
-
-                })
-            });
-            console.log(result);
-
-
-            return typeDirsArr
-            // 过滤一个文件夹下都么的
-                .filter(function (v) {
-                    return v.length !== 0
-                })
-
-                // 过滤已经达到文件上限的文件夹
-                .map(v => {
-
-                    const typeDirInfo = getTargetTypeConfig(v[0].typeDirName);
-                    return {
-                        [v[0].typeDirName]: v.filter(v => v.length !== typeDirInfo.maxFiles)
-                    }
-                })
-
-                .reduce((pre, cur) => {
-                    // 合并数组
-                    return Object.assign(pre, cur)
-                })
-
-        })
-}
-
-
-async function getDirInfo2(rootDir) {
+// 初始化 获取存储目录的相关信息
+function getDirInfo(storeRootDirectoryPath) {
     const result = {};
 
-    const typeDirsArr = (await readdir(rootDir)).filter(typeDirName => typeDirName !== "temp");
+    const typeDirsArr = fs.readdirSync(storeRootDirectoryPath);
 
+    // 类型文件夹
     for (let typeDir  of typeDirsArr) {
-        result[typeDir] = {availableDir: [], length: 0};
+        result[typeDir] = {
+            availableDir: [],
+            length: 0,
+            path: path.resolve(storeRootDirectoryPath,typeDir)
+        };
 
-        const numDirsArr = await readdir(path.resolve(rootDir, typeDir));
+        // 数字文件夹
+        const numDirsArr = fs.readdirSync(path.resolve(storeRootDirectoryPath, typeDir));
         result[typeDir].length = numDirsArr.length;
         for (let numDir of numDirsArr) {
-            const dirPath = path.resolve(rootDir, typeDir, numDir);
-            const files = await readdir(dirPath);
+            // 读取每个数字文件夹的所有内容
+            const dirPath = path.resolve(storeRootDirectoryPath, typeDir, numDir);
+            const files = fs.readdirSync(dirPath);
             const typeConfig = getTargetTypeConfig(typeDir);
+
+            // 过滤已经达到上限的文件夹
             if (files.length < typeConfig.maxFiles) {
                 result[typeDir].availableDir.push({
+                    ...typeConfig,
                     dirPath,
-                    length: files.length
+                    length: files.length,
+                    maxFiles: typeConfig.maxFiles
                 })
             }
         }
     }
+    return result
 }
 
+// 初始化config
+function initConfig(config) {
+    const RegExp = "^(?!.*(" + config
+        .filter(v => v.dirName !== "other")
+        .reduce((pre, cur) => {
 
+            return (typeof pre === 'string' ?
+                pre  :  pre.RegExp)
+                + "|" + cur.RegExp
+        }) + ")+.*$).*";
+    config.find(v => v.dirName === "other").RegExp = RegExp
+}
+
+// 获取对应配置的相关信息
 function getTargetTypeConfig(typeName) {
     return config.find(v => v.dirName === typeName);
 }
 
+// 如果没有相关的文件夹 就都创建好
+function initDir(storeRootDirectoryPath) {
+    const typeDirsArr = fs.readdirSync(storeRootDirectoryPath);
+    config
+        .map(v => v.dirName)
+        .forEach(function (type) {
+            if (!typeDirsArr.some(typeDir => typeDir === type)) {
+                // 如果没有type文件夹 创建type的文件夹
+                fs.mkdirSync(path.resolve(storeRootDirectoryPath, type));
+                fs.mkdirSync(path.resolve(storeRootDirectoryPath, type, "1"));
+            }
+        })
+}
 
-const rootDirectoryPath = "e:\\temp";
+function main() {
+    initConfig(config);
+    console.log(config)
+    initDir(storeRootDirectoryPath);
+    const filteredData = getDirInfo(storeRootDirectoryPath);
+    recursionFolder(fromRootDirectoryPath, filteredData, partition)
+        .then(() => console.log("操作完毕"))
 
-getDirInfo(rootDirectoryPath)
-    .then(filteredData =>
-            console.log(filteredData)
-        //startExecute(path.resolve(rootDirectoryPath, "temp"), filteredData)
-    );
+}
+
+main();
