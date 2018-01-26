@@ -21,7 +21,8 @@ async function orderDir(filePath, dirInfo,type) {
         // 移动文件
         const newFilePath  = await getNewFilePath(filePath, availableDirsArr[0],type);
         try{
-            await move(filePath,newFilePath);
+            // 使用await 为同步 不适用为异步
+            move(filePath,newFilePath);
         }catch(err){
             console.log(err)
         }
@@ -161,7 +162,8 @@ function getDirInfo(storeRootDirectoryPath) {
 
 // 初始化config
 function initConfig(config) {
-    const RegExp = "^(?!.*(" + config
+  
+    config.find(v => v.dirName === "other").RegExp = "^(?!.*(" + config
         .filter(v => v.dirName !== "other")
         .reduce((pre, cur) => {
 
@@ -169,7 +171,6 @@ function initConfig(config) {
                 pre  :  pre.RegExp)
                 + "|" + cur.RegExp
         }) + ")+.*$).*";
-    config.find(v => v.dirName === "other").RegExp = RegExp
 }
 
 // 获取对应配置的相关信息

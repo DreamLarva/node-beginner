@@ -1,12 +1,49 @@
 const puppeteer = require('puppeteer');
+const moment = require('moment');
 
+const section = {
+    // 周日
+    "0": [],
+    // 周一
+    "1": [["9:30", "9:45"], ["17:15", "17: 30"]],
+    // 周二
+    "2": [["9:30", "9:45"], ["17:15", "17: 30"]],
+    // 周三
+    "3": [["9:30", "9:45"], ["17:15", "17: 30"]],
+    // 周四
+    "4": [["9:30", "9:45"], ["17:15", "17: 30"]],
+    // 周五
+    "5": [["9:30", "9:45"], ["17:15", "17: 30"]],
+    // 周六
+    "6": []
+
+};
+
+/**
+ * @return {boolean}
+ * */
+function isInSignTime(section) {
+    const now = moment();
+    // 获取 周几
+    const day = String(now.day());
+    const span = section[day];
+
+    if(span.length && now.isBetween(todayTime(span[0][0]), todayTime(span[0][1]))){
+        // 签到时间段
+    }else if(span.length && now.isBetween(todayTime(span[1][0]), todayTime(span[1][1]))){
+        // 签退时间段
+    }else{
+        // 不在签到 或者 签到的时间段
+    }
+}
+
+function todayTime(timeString,splitSign = ":"){
+    const [h,m] = timeString.split(splitSign).map(v => parseInt(v));
+    return moment().hour(h).minute(m)
+}
 
 async function arrangeDate() {
 
-    const section = [
-        [setTodayTime(9, 30), setTodayTime(9, 45)],
-        [setTodayTime(17, 15), setTodayTime(17, 30)]
-    ];
 
     // 只要落在区间内 执行主进程
     await main(section)
@@ -22,19 +59,6 @@ function setTodayTime(hours, minutes) {
     date.setHours(hours);
     date.setMinutes(minutes);
     return date
-
-}
-
-// tempUse()
-
-function tempUse() {
-    const nowTimeStamp = Date.now()
-    const target = new Date()
-    target.setHours(17);
-    target.setMinutes(15);
-    const targetTimeStamp = target.getTime()
-    setTimeout(() => main(), targetTimeStamp - nowTimeStamp)
-
 }
 
 
@@ -74,19 +98,3 @@ async function main(section) {
 
 
 
-
-
-// 最后一次校验 保证不会在非正常时间执行
-function valid() {
-    const date = new Date();
-    return (
-        date.getDay() === 6 ||
-        date.getDay() === 7 ||
-        date.getHours() === 9 ||
-        date.getHours() === 17
-    )
-}
-
-function doSign() {
-
-}
