@@ -19,16 +19,15 @@ const asyncCtrl =
                     if (waitQueue.length) {
                         waitQueue.shift()()
 
-
                     } else {
                         currentQueueLength--;
-
                     }
 
                 };
 
                 if (currentQueueLength === queueLimit) {
                     waitQueue.push(() => fun.call(null, ...args, callback));
+                    console.log("等待队列长度" + waitQueue.length)
 
                 } else {
                     currentQueueLength++;

@@ -157,7 +157,7 @@ async function sign(signSignal) {
         if (await isWriteReport(signFrame)) {
             // 还没有填写日报
             console.log("开始填写日报");
-            // 切换到填写日报tab
+            // 切换到填写周报tab
             const reportFrame = await selectReportTab(page);
             // 填写今天的 周报
             await inputReport(reportFrame);
