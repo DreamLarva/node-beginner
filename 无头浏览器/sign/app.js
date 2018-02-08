@@ -9,10 +9,9 @@ const STATUS = {
     SIGN_OUT: Symbol(),
 };
 
-// main(section)
-//     .catch(console.log);
+main(section)
+    .catch(console.log);
 
-sign(STATUS.SIGN_IN);
 
 async function main(section, date = moment()) {
     const {offset, act} = isInSignTime(section, date);
@@ -165,14 +164,12 @@ async function sign(signSignal) {
             console.log("周报填写成功");
 
             // 注册alert 事件
-            page.once("dialog",function(dialog){
+            page.once("dialog", function (dialog) {
                 dialog.accept()
             });
 
             // 保存
-            await waitAndClick(reportFrame,);
-            await (await reportFrame.$("body > div > div > h4 > a > img")).click();
-
+            await waitAndClick(reportFrame, "body > div > div > h4 > a > img");
 
 
             // 切回签到页面
@@ -186,10 +183,7 @@ async function sign(signSignal) {
         await signFrame.waitForSelector("#signOutDialog > div > div:nth-child(1)");
 
         // 弹出框确定
-        Promise.all([
-            await (await signFrame.$("#signOutDialog > div > div:nth-child(3) > a:nth-child(1)")).click(),
-            page.waitForNavigation({waitUntil: "networkidle0"})
-        ]);
+        await (await signFrame.$("#signOutDialog > div > div:nth-child(3) > a:nth-child(1)")).click()
         console.log("签退成功")
 
 
@@ -207,7 +201,6 @@ async function sign(signSignal) {
     }
 
 
-
     await browser.close();
 
 }
@@ -215,7 +208,7 @@ async function sign(signSignal) {
 /**
  * 等待页面渲染出按钮 就点击这个按钮
  * */
-async function waitAndClick(frame,selector){
+async function waitAndClick(frame, selector) {
     await frame.waitForSelector(selector);
     await (await frame.$(selector)).click()
 }
@@ -269,9 +262,9 @@ async function isWriteReport(page) {
 async function inputReport(frame) {
     const now = moment();
     const date = now.format("YYYY-MM-DD");
-    const day =now.day();
+    const day = now.day();
 
-    const {byDate,byDay}= require('./report');
+    const {byDate, byDay} = require('./report');
     let inputContent = byDate[date] || byDay[day] || "";
 
 
