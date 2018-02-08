@@ -200,7 +200,7 @@ async function sign(signSignal) {
         console.log("签到成功")
     }
 
-
+    await page.waitFor(500);
     await browser.close();
 
 }
