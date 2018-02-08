@@ -17,10 +17,12 @@ const asyncCtrl =
                     originCallback(...args);
 
                     if (waitQueue.length) {
-                        waitQueue.shift()()
+                        waitQueue.shift()();
+                        console.log("等待队列长度" + waitQueue.length,"执行队列长度 "+ currentQueueLength)
 
                     } else {
                         currentQueueLength--;
+                        console.log("等待队列长度" + waitQueue.length,"执行队列长度 "+ currentQueueLength)
                     }
 
                 };
@@ -32,6 +34,7 @@ const asyncCtrl =
                 } else {
                     currentQueueLength++;
                     fun(...args, callback);
+                    console.log("等待队列长度" + waitQueue.length,"执行队列长度 "+ currentQueueLength)
                 }
             };
 

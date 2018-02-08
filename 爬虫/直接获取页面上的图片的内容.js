@@ -1,20 +1,16 @@
 /**
- * Created by Agent47 on 2018/1/29
+ * Created by Agent47 on 2018/2/8
  * */
 "use strict";
+
 const puppeteer = require("puppeteer");
 
 const path = require("path");
-const _download = require('./download');
 const promisify = require('util').promisify;
-const asyncCtrl = require("./asyncCtrl")(5);
 
-const download = promisify(asyncCtrl(_download))
-
-let count = 0;
 
 async function main() {
-    const browser = await puppeteer.launch({headless: false});
+    const browser = await puppeteer.launch({headless: true});
     const page = await browser.newPage();
     try {
         await page.goto("http://jandan.net/pic/page-189#comments", {waitUntil: "networkidle2"});
@@ -26,12 +22,9 @@ async function main() {
     });
 
 
-
-    await Promise.all(hrefs.map(href => download(href, path.resolve("test", count++ + path.extname(href)))));
+    await Promise.all(hrefs.map(href => download(href, path.resolve("test", path.resolve("test", path.basename(href))))));
 
     console.log(hrefs)
     // console.log(links.join("\n"));
     // browser.close();
 }
-
-main()
