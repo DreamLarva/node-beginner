@@ -9,10 +9,10 @@ const STATUS = {
     SIGN_OUT: Symbol(),
 };
 
-// main(section)
-//     .catch(console.log);
+main(section)
+    .catch(console.log);
 
-sign(STATUS.SIGN_IN);
+// sign(STATUS.SIGN_IN);
 
 
 async function main(section, date = moment()) {
