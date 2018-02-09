@@ -9,8 +9,10 @@ const STATUS = {
     SIGN_OUT: Symbol(),
 };
 
-main(section)
-    .catch(console.log);
+// main(section)
+//     .catch(console.log);
+
+sign(STATUS.SIGN_IN);
 
 
 async function main(section, date = moment()) {
@@ -180,10 +182,9 @@ async function sign(signSignal) {
         }
         // 开始签退
         await signButtons[1].click();
-        await signFrame.waitForSelector("#signOutDialog > div > div:nth-child(1)");
 
         // 弹出框确定
-        await (await signFrame.$("#signOutDialog > div > div:nth-child(3) > a:nth-child(1)")).click()
+        await waitAndClick(signFrame,"#signOutDialog > div > div:nth-child(3) > a:nth-child(1)");
         console.log("签退成功")
 
 
@@ -191,17 +192,15 @@ async function sign(signSignal) {
         // 签到情况
         // 开始签到
         await signButtons[0].click();
-        await signFrame.waitForSelector("#signInDialog > div > div:nth-child(3) > a:nth-child(1) > img");
+        await waitAndClick(signFrame,"#signInDialog > div > div:nth-child(3) > a:nth-child(1) > img");
+
         // 弹出框确定
-        Promise.all([
-            await (await signFrame.$("#signInDialog > div > div:nth-child(3) > a:nth-child(1) > img")).click(),
-            page.waitForNavigation({waitUntil: "networkidle0"})
-        ]);
+        await (await signFrame.$("#signInDialog > div > div:nth-child(3) > a:nth-child(1) > img")).click();
         console.log("签到成功")
     }
 
-    await page.waitFor(500);
-    await browser.close();
+    await page.waitFor(1000);
+    // await browser.close();
 
 }
 
