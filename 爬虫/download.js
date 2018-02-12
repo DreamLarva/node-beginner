@@ -3,11 +3,14 @@
  * */
 "use strict";
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
+const url = require("url");
 
+const protocol = {http, https};
 
-module.exports = function (url, downloadPath, callback) {
-    http.get(url, function (res) {
+module.exports = function (downloadUrl, downloadPath, callback) {
+    protocol[url.parse(downloadUrl).protocol.slice(0, -1)].get(downloadUrl, function (res) {
         res.on("end", function () {
             console.log(downloadPath + "下载成功");
             callback()

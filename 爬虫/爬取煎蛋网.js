@@ -9,7 +9,7 @@ const _download = require('./download');
 const promisify = require('util').promisify;
 const asyncCtrl = require("./asyncCtrl")(5);
 
-const download = promisify(asyncCtrl(_download))
+const download = promisify(asyncCtrl(_download));
 
 
 async function main() {
@@ -29,7 +29,7 @@ async function main() {
 
     console.log(hrefs)
     // console.log(links.join("\n"));
-    // browser.close();
+    browser.close();
 }
 
 main()
