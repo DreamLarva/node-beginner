@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wx-pay</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.2/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.0/css/jquery-weui.min.css">
+    <style>
+        .textCtrl {
+            width: 10em;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="container">
+    <div class="page input js_show">
+
+        <div class="page__bd">
+            <div class="weui-cells__title">注册桥接并授权</div>
+            <div class="weui-cells">
+                <div class="weui-cell">
+                    <div class="weui-cell__bd">
+                        <p>token</p>
+                    </div>
+                    <nobr>
+                        <div class="weui-cell__ft textCtrl" id="token"></div>
+                    </nobr>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__bd">
+                        <p>vtDeviceId</p>
+                    </div>
+                    <nobr>
+                        <div class="weui-cell__ft textCtrl" id="vtDeviceId"></div>
+                    </nobr>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="page__bd">
+            <div class="weui-cells__title">当前环境 : <span id="env">dev</span></div>
+            <div class="weui-cells weui-cells_radio" id="products">
+                <label class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">
+                        <p>cell standard</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" class="weui-check" name="radio1">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+                <label class="weui-cell weui-check__label">
+
+                    <div class="weui-cell__bd">
+                        <p>cell standard</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" name="radio1" class="weui-check" checked="checked">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="weui-btn-area">
+            <a id="btn1" class="weui-btn weui-btn_primary weui-btn_loading">正在加载...</a>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.0/js/jquery-weui.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.20.1/moment.min.js"></script>
+<script src="http://itest.dfzq.com.cn/open/dfzq-jsbridge-1.3.js"></script>
+<script>
+
+    (function main(callback) {
+        let env = "dev";
+        const wxUserInfo = {};
+
+        fastman.ready(function () {
+            // 所有的桥接接口都必须在ready接口执行成功后才可被调用，如果需要在页面加载时就调用相关桥接接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+            $(function () {
+                setNavigateBar();
+                getProds();
+            });
+        });
+
+
+        function changeEnv() {
+            $.actions({
+                actions: [{
+                    text: "dev",
+                    onClick: function () {
+                        $("#env").text(env = this.text);
+                        getProds();
+                        $.closeActions();
+                    }
+                }, {
+                    text: "sit",
+                    onClick: function () {
+                        $("#env").text(env = this.text);
+                        getProds();
+                        $.closeActions();
+                    }
+                }]
+            });
+        }
+
+
+        function setNavigateBar() {
+            if (!fastman.isFromApp()) {
+                $('dialog').style.display = 'block'
+            } else {
+                // 相关配置
+                fastman.onNavigateBar({
+                    title: '微信支付',                   // 导航标题
+                    rightButtonTitle: '切换环境',           // 右侧按钮文字
+                    onRightButtonPress: changeEnv,    // 右侧按钮点击事件，不定义则不会触发点击
+                    isShowBackButton: true,            // 是否显示后退按钮，默认true(即显示)
+                })
+            }
+        }
+
+        function getProds() {
+            fastman.oauth({
+                success: function (res) {
+                    $('#token').text(wxUserInfo.token = res.token);
+                    $('#vtDeviceId').text(wxUserInfo.vtDeviceId = res.vtDeviceId);
+
+                    ajaxTransport("IF096102", {}, {
+                        success: function (data) {
+                            data = data.payload.data;
+                            // alert(JSON.stringify(data, 2, 2, 2));
+
+                            // 支付按钮可用
+                            $("#btn1").removeClass("weui-btn_loading").text("支付").click(wxPay);
+
+                            // 渲染产品
+                            $("#products").empty().append(data.specList.map(function (v, index) {
+                                const template = '<label class="weui-cell weui-check__label">' +
+                                    '<div class="weui-cell__bd">' +
+                                    '<p>产品 ' + v.specName + " " +  v.salePrice + '</p>' +
+                                    '</div>' +
+                                    '<div class="weui-cell__ft">' +
+                                    '<input type="radio" class="weui-check" name="product">' +
+                                    '<span class="weui-icon-checked"></span>' +
+                                    '</div>' +
+                                    '</label>';
+
+
+                                return $(template).find("input[type='radio']").prop("checked", !index).data("prodData", {
+                                    productNo: data.productNo,
+                                    productName: data.productName,
+                                    protTypeCode: data.protTypeCode,
+                                    specId: v.specId
+                                }).end();
+                            }))
+                        },
+                    })
+
+                },
+                fail: function (err) {
+                    $.alert(err.info)
+                }
+            })
+        }
+
+        function wxPay() {
+            if ($("#products").find("input[type='radio']:checked").length === 0) {
+                $.alert("必须选择一个产品")
+            }
+
+            // 获取选中的产品
+            const data = $("#products").find("input[type='radio']:checked").data("prodData");
+            // 支付
+            const now = new Date();
+            const params = $.extend({}, {
+                requestNo: moment(now).format("YYYYMMDDHHmmss") + now.getTime() % 1000, // String	Y	请求流水号	格式: yyyyMMddHHmmssSSS
+                // productNo: "String	Y	商品编号",
+                // productName: "String	Y	商品名称",
+                // specId: "String	Y	规格ID",
+                quantity: 1,// int	Y	数量	本期必须为 1
+                paymentType: 2, // int	Y	支付类型
+                // protTypeCode: "String	N	协议区域代码",
+                needSignFlag: true, // boolean	Y	是否需要签署协议	true:需要 (protTypeCode不能为空); false:不需要
+            }, data);
+            console.table(params);
+            ajaxTransport("IF096103", params, {
+                success: function (data) {
+                    data = data.payload.data;
+                    $.alert(JSON.stringify(data, 2, 2, 2));
+                    callback && callback(data)
+                },
+            })
+        }
+
+        function ajaxTransport(api, payload, params) {
+            $.ajax('/message/transport', $.extend({
+            // $.ajax('http://itest.dfzq.com.cn/message/transport', $.extend({
+                type: 'POST',
+                crossDomain: true,
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    "target": 'http://itest.dfzq.com.cn/api/gateway?func=' + api + '&scene=' + env,
+                    "header": {
+                        "funcNo": api,
+                        "vtDeviceId": wxUserInfo.vtDeviceId,
+                        "ver": "3.2.0",
+                        "channel": "4",
+                        "token": wxUserInfo.token,
+                    },
+                    payload: payload || {}
+                }),
+                success: function (data) {
+                    data = data.payload.data;
+
+                },
+                error: function (a, c, b) {
+                    alert(a)
+                },
+            }, params || {}))
+        }
+
+    })(() => {
+    })
+</script>
+</body>
+</html>

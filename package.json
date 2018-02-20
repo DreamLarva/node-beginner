@@ -26,6 +26,7 @@
     "express-session": "^1.15.6",
     "formidable": "^1.1.1",
     "htmlparser": "^1.7.7",
+    "http-proxy-middleware": "^0.17.4",
     "keygrip": "^1.0.2",
     "mime": "^2.0.3",
     "moment": "^2.20.1",
@@ -42,7 +43,7 @@
     "serve-static": "^1.13.1",
     "socket.io": "^2.0.4",
     "superagent": "^3.8.1",
-    "tobi": "^0.3.2",
-    "yargs": "^9.0.1"
+    "yargs": "^9.0.1",
+    "zeromq": "^4.6.0"
   }
 }
