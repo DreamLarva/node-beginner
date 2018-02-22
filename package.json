@@ -43,7 +43,6 @@
     "serve-static": "^1.13.1",
     "socket.io": "^2.0.4",
     "superagent": "^3.8.1",
-    "yargs": "^9.0.1",
-    "zeromq": "^4.6.0"
+    "yargs": "^9.0.1"
   }
 }
