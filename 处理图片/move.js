@@ -3,25 +3,44 @@
  * */
 "use strict";
 
-const fs = require('fs');
-const promisify = require("util").promisify;
-const asyncCtrl = require('./asyncCtrl');
-
-const asyncCtrlWithLimit = asyncCtrl(2);
-const copy = promisify(asyncCtrlWithLimit(fs.copyFile));
+const
+    fs = require('fs'),
+    promisify = require("util").promisify,
+    rename = promisify(fs.rename),
+    copy = promisify(fs.copyFile),
+    unlink = promisify(fs.unlink);
 
 async function move(oldPath, newPath) {
     try {
-        await promisify(fs.rename)(oldPath, newPath)
+        // 路径都在同一磁盘下就 使用rename
+        await rename(oldPath, newPath)
     } catch (err) {
+        // 路劲在不同磁盘下 使用 copy + unlink
         if (err.code === "EXDEV") {
             await copy(oldPath, newPath, fs.constants.COPYFILE_EXCL);
-            // await promisify(fs.copyFile)(oldPath, newPath, fs.constants.COPYFILE_EXCL);
-            await promisify(fs.unlink)(oldPath);
-            console.log(oldPath + " => " + newPath)
-
+            await unlink(oldPath);
         }
     }
+    console.log(oldPath + " => " + newPath)
 }
 
-module.exports = move;
+function moveSync(oldPath, newPath) {
+    try {
+        // 路径都在同一磁盘下就 使用rename
+        fs.rename(oldPath, newPath)
+    } catch (err) {
+        // 路劲在不同磁盘下 使用 copy + unlink
+        if (err.code === "EXDEV") {
+            fs.copyFileSync(oldPath, newPath, fs.constants.COPYFILE_EXCL);
+            fs.unlink(oldPath);
+        }
+    }
+    console.log(oldPath + " => " + newPath)
+
+}
+
+
+exports = {
+    move,
+    moveSync,
+};

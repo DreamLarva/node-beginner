@@ -1,9 +1,8 @@
 const fs = require('fs');
 const crypto = require('crypto');
-const promisify = require("util").promisify;
 
 
-function explainMd5(path, callback) {
+function toMd5(path, callback) {
     "use strict";
     const md5sum = crypto.createHash('md5');
     const stream = fs.createReadStream(path);
@@ -20,4 +19,4 @@ function explainMd5(path, callback) {
 }
 
 
-module.exports = promisify(explainMd5);
+module.exports = toMd5;

@@ -16,11 +16,10 @@ const
             console.log(doc);
             done();
         })
-    }, 1000);
+    }, 5);
 
 
 console.log('beginning directory walk');
-
 file.walk(path.resolve(rootPath, "cache"), function (err, dirPath, dirs, files) {
     console.log(dirPath, dirs, files);
     files.forEach(function (path) {

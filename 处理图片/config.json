@@ -1,7 +1,7 @@
 [
   {
     "dirName":"other",
-    "maxFiles":10,
+    "maxFiles":5,
     "toMd5":false
   },
   {
