@@ -46,5 +46,8 @@
     "socket.io": "^2.0.4",
     "superagent": "^3.8.1",
     "yargs": "^9.0.1"
+  },
+  "devDependencies": {
+    "autocannon": "^2.0.1"
   }
 }

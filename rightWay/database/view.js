@@ -16,14 +16,16 @@ module.exports = {
 
     by_subject: {
         map: function (doc) {
-            doc.subjects.forEach(function (subject) {
-                emit(subject, subject);
+            if ('subjects' in doc) {
+                doc.subjects.forEach(function (subject) {
+                    emit(subject, subject);
 
-                subject.split('/\s+--\s+').forEach(function (part) {
-                    emit(part, subject)
-                })
-            })
+                    subject.split(/\s+--\s+/).forEach(function (part) {
+                        emit(part, subject)
+                    });
+                });
+            }
         }.toString(),
-        reduce:'_count'
+        reduce: '_count'
     }
 };

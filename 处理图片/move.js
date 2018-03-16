@@ -27,12 +27,12 @@ async function move(oldPath, newPath) {
 function moveSync(oldPath, newPath) {
     try {
         // 路径都在同一磁盘下就 使用rename
-        fs.rename(oldPath, newPath)
+        fs.renameSync(oldPath, newPath)
     } catch (err) {
         // 路劲在不同磁盘下 使用 copy + unlink
         if (err.code === "EXDEV") {
             fs.copyFileSync(oldPath, newPath, fs.constants.COPYFILE_EXCL);
-            fs.unlink(oldPath);
+            fs.unlinkSync(oldPath);
         }
     }
     console.log(oldPath + " => " + newPath)
@@ -40,7 +40,8 @@ function moveSync(oldPath, newPath) {
 }
 
 
-exports = {
-    move,
-    moveSync,
-};
+exports = Object.assign(exports, {
+        move,
+        moveSync,
+    }
+)

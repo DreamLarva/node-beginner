@@ -6,8 +6,9 @@ const
 
 const
     config = require("./config.json"),
-    explainMd5 = require("./md5"),
-    move = require('./move');
+    explainMd5 = promisify(require("./md5")),
+    moveSync = require('./move').moveSync,
+    AltFolders = require("./module/AltFolders");
 
 
 const storeRootDirectoryPath = "d:\\test\\test2";
@@ -16,9 +17,8 @@ const fromRootDirectoryPath = "d:\\test\\test1";
 function main(fromRootDirectoryPath, storeRootDirectoryPath) {
     initConfig(config);
     initDir(storeRootDirectoryPath);
-    const dataArray = explainStoreFiles(storeRootDirectoryPath);
-    filterDir(dataArray);
-    walk(fromRootDirectoryPath, storeRootDirectoryPath, dataArray)
+    const dataObj = explainStoreFiles(storeRootDirectoryPath);
+    walk(fromRootDirectoryPath, dataObj)
 
 }
 
@@ -60,7 +60,7 @@ function explainStoreFiles(storeRootDirectoryPath) {
             const typeDirPath = path.resolve(storeRootDirectoryPath, typeDirName);
             return {
                 dirName: typeDirName,
-                data: explainTypeFiles(typeDirPath)
+                data: new AltFolders(typeDirPath, getConfig(typeDirName))
             }
         })
         // 合成一个对象
@@ -70,54 +70,42 @@ function explainStoreFiles(storeRootDirectoryPath) {
 
 }
 
-// 读取 类型中的文件
-function explainTypeFiles(typeDirPath) {
-    return fs.readdirSync(typeDirPath)
-        .map(function (numDirName) {
-            const numDirPath = path.resolve(typeDirPath, numDirName);
-            return {
-                dirPath: numDirPath,
-                length: fs.readdirSync(numDirPath).length
-            }
-        })
-}
-
-// 过滤已经满了的文件夹 数据
-function filterDir(dataArray) {
-    for (let type of Object.keys(dataArray)) {
-        let data = dataArray[type];
-        dataArray[type] = data.filter(function (data) {
-            const maxFiles = getConfig(type).maxFiles;
-            if (maxFiles < data.length) throw Error(`${type} 文类型件的数量 ${data.length}超过了配置的 ${maxFiles}`);
-            return maxFiles !== data.length
-        });
-    }
-}
 
 // 读取需要归类的文件
-function walk(fromRootDirectoryPath, storeRootDirectoryPath, dataArray) {
-    file.walkSync(fromRootDirectoryPath, function (dirPath, dirs, files) {
+function walk(fromRootDirectoryPath, dataObj) {
+    file.walkSync(fromRootDirectoryPath, async function (dirPath, dirs, files) {
         for (let fileName of files) {
-            const fileDirPath = getRemovePath(fileName, dataArray)
+            const
+                typeConfig = explainType(fileName),
+                type = typeConfig.dirName;
+
+            await dataObj[type].move(async function (Folder, finish) {
+                const
+                    fileExtname = path.extname(fileName);
+                if (typeConfig.toMd5) {
+                    await explainMd5(path.resolve(dirPath, fileName))
+                        .then(hash => {
+                            const newfileName = hash + fileExtname;
+                            moveSync(
+                                path.resolve(dirPath, fileName),
+                                path.resolve(Folder.path, newfileName)
+                            );
+                            finish()
+                        })
+                } else {
+                    moveSync(
+                        path.resolve(dirPath, fileName),
+                        path.resolve(Folder.path, fileName)
+                    );
+                    finish()
+                }
+
+
+            })
         }
     })
 }
 
-function getRemovePath(fileName, dataArray) {
-    // 获取类型
-    const typeConfig = explainType(fileName);
-    if (dataArray[typeConfig.dirName].length) {
-        dataArray[typeConfig.dirName][0].length++;
-        return dataArray[typeConfig.dirName]
-    }
-
-    // 有可以使用的文件夹
-
-    // 一个文件夹都没有
-
-    // 有文件夹但是 都满了
-
-}
 
 // 获取对应的配置
 function getConfig(type) {

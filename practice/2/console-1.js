@@ -1,5 +1,6 @@
-console.error(11111111111111111111111111111111111111)
-console.error("string")
+console.log("string")
+console.log({a:1,b:2})
+setTimeout(()=>console.log("async finish"));
 /**
  * 将某个输出流直接 重定向到文件
  * node console-1 2>errors-file.log

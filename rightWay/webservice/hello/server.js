@@ -9,4 +9,11 @@ const
 
 app.use(logger('dev'));
 
-app.get('/');
+app.get('/api/:name', function (req,res) {
+    res.json(200, {
+        hello: req.params.name
+    })
+});
+app.listen(3000, function () {
+    console.log("ready captain")
+});
