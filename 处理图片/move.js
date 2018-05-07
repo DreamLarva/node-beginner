@@ -10,6 +10,13 @@ const
     copy = promisify(fs.copyFile),
     unlink = promisify(fs.unlink);
 
+
+/**
+ * @async
+ * @function 移动文件 如果在同样盘符下就移动 不是就复制并删除源文件
+ * @param {string} oldPath - 源文件地址
+ * @param {string} newPath - 目标文件地址
+ * */
 async function move(oldPath, newPath) {
     try {
         // 路径都在同一磁盘下就 使用rename
@@ -24,6 +31,12 @@ async function move(oldPath, newPath) {
     console.log(oldPath + " => " + newPath)
 }
 
+/**
+ * @async
+ * @function 移动文件 如果在同样盘符下就移动 不是就复制并删除源文件
+ * @param {string} oldPath - 源文件地址
+ * @param {string} newPath - 目标文件地址
+ * */
 function moveSync(oldPath, newPath) {
     try {
         // 路径都在同一磁盘下就 使用rename
@@ -44,4 +57,4 @@ exports = Object.assign(exports, {
         move,
         moveSync,
     }
-)
+);

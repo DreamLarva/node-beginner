@@ -1,13 +1,13 @@
 const
     fs = require("fs"),
     path = require("path"),
-    promisify = require("util").promisify,
-    file = require("file");
+    promisify = require("util").promisify;
 
 const
     config = require("./config.json"),
     explainMd5 = promisify(require("./md5")),
     moveSync = require('./move').moveSync,
+    walkSync = require('./module/walkSync'),
     AltFolders = require("./module/AltFolders");
 
 
@@ -19,6 +19,7 @@ function main(fromRootDirectoryPath, storeRootDirectoryPath) {
     initDir(storeRootDirectoryPath);
     const dataObj = explainStoreFiles(storeRootDirectoryPath);
     walk(fromRootDirectoryPath, dataObj)
+        .catch(console.log)
 
 }
 
@@ -73,7 +74,7 @@ function explainStoreFiles(storeRootDirectoryPath) {
 
 // 读取需要归类的文件
 function walk(fromRootDirectoryPath, dataObj) {
-    file.walkSync(fromRootDirectoryPath, async function (dirPath, dirs, files) {
+    return walkSync(fromRootDirectoryPath, async function (dirPath, dirs, files) {
         for (let fileName of files) {
             const
                 typeConfig = explainType(fileName),
@@ -81,14 +82,14 @@ function walk(fromRootDirectoryPath, dataObj) {
 
             await dataObj[type].move(async function (Folder, finish) {
                 const
-                    fileExtname = path.extname(fileName);
+                    fileExtName = path.extname(fileName);
                 if (typeConfig.toMd5) {
                     await explainMd5(path.resolve(dirPath, fileName))
                         .then(hash => {
-                            const newfileName = hash + fileExtname;
+                            const newFileName = hash + fileExtName;
                             moveSync(
                                 path.resolve(dirPath, fileName),
-                                path.resolve(Folder.path, newfileName)
+                                path.resolve(Folder.path, newFileName)
                             );
                             finish()
                         })
