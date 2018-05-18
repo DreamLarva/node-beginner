@@ -3,14 +3,14 @@
  * */
 "use strict";
 const spawn = require('child_process').spawn;
-const bat = spawn('cmd.exe', ['/c', 'my.bat']);//使用shell方法指定一个shell选项
+const bat = spawn('ls'); // 使用shell方法指定一个shell选项
 bat.stdout.on('data', (data) => {
-    console.log(data);
+    console.log(data.toString());
 });
 bat.stderr.on('data', (data) => {
-    console.log(data.toString("utf8"));
+    console.log(data.toString());
 });
 
 bat.on('exit', (code) => {
-    console.log(`Child exited with code $[code]`);
+    console.log(`Child exited with code ${code}`);
 });
